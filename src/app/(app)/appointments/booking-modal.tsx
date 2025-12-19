@@ -15,6 +15,7 @@ import type { professionals as ProfessionalsType } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type Professional = (typeof ProfessionalsType)[0];
 
@@ -28,9 +29,12 @@ const timeSlots = [
   '09:00 AM',
   '10:00 AM',
   '11:00 AM',
+  '12:00 PM',
+  '01:00 PM',
   '02:00 PM',
   '03:00 PM',
   '04:00 PM',
+  '05:00 PM',
 ];
 
 export default function BookingModal({
@@ -70,42 +74,44 @@ export default function BookingModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Book Appointment</DialogTitle>
           <DialogDescription>
             Schedule your session with {professional.name}.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-6 py-6">
-          <div className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              className="rounded-md border"
-              disabled={(d) => d < new Date(new Date().setDate(new Date().getDate() - 1))}
-            />
-          </div>
-          <div>
-            <h4 className="font-medium mb-4 text-center">Available Time Slots</h4>
-            <div className="grid grid-cols-3 gap-2">
-              {timeSlots.map((time) => (
-                <Button
-                  key={time}
-                  variant="outline"
-                  className={cn(
-                    selectedTime === time && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
-                  )}
-                  onClick={() => setSelectedTime(time)}
-                >
-                  {time}
-                </Button>
-              ))}
+        <ScrollArea className="flex-1 pr-6 -mr-6">
+          <div className="grid gap-6 py-1">
+            <div className="flex justify-center">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                className="rounded-md border"
+                disabled={(d) => d < new Date(new Date().setDate(new Date().getDate() - 1))}
+              />
+            </div>
+            <div>
+              <h4 className="font-medium mb-4 text-center">Available Time Slots</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {timeSlots.map((time) => (
+                  <Button
+                    key={time}
+                    variant="outline"
+                    className={cn(
+                      selectedTime === time && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
+                    )}
+                    onClick={() => setSelectedTime(time)}
+                  >
+                    {time}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-        <DialogFooter>
+        </ScrollArea>
+        <DialogFooter className="pt-6">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
