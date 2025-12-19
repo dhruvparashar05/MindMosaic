@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {generate} from 'genkit/ai';
+import { generate } from 'genkit';
 import {z} from 'zod';
 
 const MessageSchema = z.object({
