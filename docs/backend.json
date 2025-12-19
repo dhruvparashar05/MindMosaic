@@ -1,0 +1,358 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user profile in the Mind Mosaic application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile.",
+          "format": "uuid"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username of the user."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "dateJoined": {
+          "type": "string",
+          "description": "Date the user joined the platform.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "username"
+      ]
+    },
+    "JournalEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "JournalEntry",
+      "type": "object",
+      "description": "Represents a journal entry created by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the journal entry.",
+          "format": "uuid"
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N JournalEntry)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the journal entry."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the journal entry."
+        },
+        "dateCreated": {
+          "type": "string",
+          "description": "Date the journal entry was created.",
+          "format": "date-time"
+        },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Indicates whether the journal entry is published."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "title",
+        "content",
+        "dateCreated"
+      ]
+    },
+    "MoodRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MoodRecord",
+      "type": "object",
+      "description": "Represents a mood record tracked by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the mood record.",
+          "format": "uuid"
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N MoodRecord)"
+        },
+        "mood": {
+          "type": "string",
+          "description": "Mood of the user recorded (e.g., Happy, Sad, Anxious)."
+        },
+        "dateRecorded": {
+          "type": "string",
+          "description": "Date the mood was recorded.",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes about the mood."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "mood",
+        "dateRecorded"
+      ]
+    },
+    "Resource": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Resource",
+      "type": "object",
+      "description": "Represents a mental health resource.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the resource.",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the resource."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the resource."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL of the resource.",
+          "format": "uri"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of resource (e.g., Video, Article, Podcast)."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "url",
+        "type"
+      ]
+    },
+    "Appointment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Appointment",
+      "type": "object",
+      "description": "Represents an appointment with a mental health professional.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the appointment.",
+          "format": "uuid"
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Appointment)"
+        },
+        "professionalId": {
+          "type": "string",
+          "description": "Reference to MentalHealthProfessional. (Relationship: MentalHealthProfessional 1:N Appointment)"
+        },
+        "dateTime": {
+          "type": "string",
+          "description": "Date and time of the appointment.",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes for the appointment."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the appointment (e.g., Scheduled, Completed, Cancelled)."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "professionalId",
+        "dateTime",
+        "status"
+      ]
+    },
+    "MentalHealthProfessional": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MentalHealthProfessional",
+      "type": "object",
+      "description": "Represents a mental health professional.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the mental health professional.",
+          "format": "uuid"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the mental health professional."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the mental health professional."
+        },
+        "specialization": {
+          "type": "string",
+          "description": "Area of specialization of the mental health professional."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "Contact email of the mental health professional.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "Contact phone of the mental health professional."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "specialization"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userProfileId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information.  This is the root for user-owned data.",
+          "params": [
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userProfileId}/journalEntries/{journalEntryId}",
+        "definition": {
+          "entityName": "JournalEntry",
+          "schema": {
+            "$ref": "#/backend/entities/JournalEntry"
+          },
+          "description": "Stores journal entries for a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "journalEntryId",
+              "description": "The unique identifier of the journal entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userProfileId}/moodRecords/{moodRecordId}",
+        "definition": {
+          "entityName": "MoodRecord",
+          "schema": {
+            "$ref": "#/backend/entities/MoodRecord"
+          },
+          "description": "Stores mood records for a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "moodRecordId",
+              "description": "The unique identifier of the mood record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userProfileId}/appointments/{appointmentId}",
+        "definition": {
+          "entityName": "Appointment",
+          "schema": {
+            "$ref": "#/backend/entities/Appointment"
+          },
+          "description": "Stores appointment information for a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "appointmentId",
+              "description": "The unique identifier of the appointment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/resources/{resourceId}",
+        "definition": {
+          "entityName": "Resource",
+          "schema": {
+            "$ref": "#/backend/entities/Resource"
+          },
+          "description": "Stores mental health resource information. No specific ownership.",
+          "params": [
+            {
+              "name": "resourceId",
+              "description": "The unique identifier of the resource."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/mentalHealthProfessionals/{mentalHealthProfessionalId}",
+        "definition": {
+          "entityName": "MentalHealthProfessional",
+          "schema": {
+            "$ref": "#/backend/entities/MentalHealthProfessional"
+          },
+          "description": "Stores mental health professional information. No specific ownership.",
+          "params": [
+            {
+              "name": "mentalHealthProfessionalId",
+              "description": "The unique identifier of the mental health professional."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, support QAPs, and maintain data clarity. User-owned data (Journal Entries, Mood Records, and Appointments) are nested under `/users/{userId}` for path-based ownership. This eliminates the need for `get()` calls in security rules. Resources and MentalHealthProfessionals are stored in root-level collections as they are not directly owned by users, and access control can be managed at the document level if needed. No custom claims are needed as roles are managed by path-based ownership. The design segregates data with different security postures, storing private user data under the user's document and public data (if any) in separate collections."
+  }
+}

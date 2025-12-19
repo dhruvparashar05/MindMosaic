@@ -1,0 +1,224 @@
+/**
+ * This ruleset enforces a strict user-ownership model for a mental health application.
+ *
+ * Core Philosophy:
+ * The primary security goal is user data privacy. All sensitive information, such as
+ * journal entries, mood records, and appointments, is strictly confined to the user who
+ * created it. Publicly accessible data, like general mental health resources, is
+ * stored separately and is read-only for clients.
+ *
+ * Data Structure:
+ * All private, user-specific data is nested under the `/users/{userId}` path. This
+ * hierarchical structure allows for simple, performant, and secure path-based
+ * authorization, ensuring a user can only ever access their own data tree. Top-level
+ * collections like `/resources` and `/mentalHealthProfessionals` are used for globally
+ * accessible, non-sensitive information.
+ *
+ * Key Security Decisions:
+ * - User Isolation: A user can ONLY read or write data within their own
+ *   `/users/{userId}` document and its subcollections.
+ * - No User Listing: It is not possible for any client to list all documents in the
+ *   `/users` collection, preventing user enumeration.
+ * - Read-Only Public Data: The `/resources` and `/mentalHealthProfessionals`
+ *   collections are public to all readers but are not writable by any client. This
+ *   prevents unauthorized modification of shared application data. Content for these
+ *   collections should be managed by a trusted backend service or admin SDK.
+ * - Secure Deletion: Users cannot delete their own profile document via the client.
+ *   Account deletion should be handled by a secure backend process to manage data
+ *   cleanup correctly.
+ *
+ * Denormalization for Authorization:
+ * This ruleset relies on path-based ownership. By nesting a user's private data
+ * (e.g., `journalEntries`) under their unique user path (`/users/{userId}`), we avoid
+ * slow and costly `get()` calls to check for ownership. Relational integrity is also
+ * enforced by ensuring that any subcollection document contains a `userProfileId` field
+ * that matches the ID in the path, preventing data from being misplaced.
+ *
+ * Structural Segregation:
+ * The data model clearly separates private and public data. Sensitive, user-owned
+ * content (journals, moods, appointments) resides in user subcollections. Generic,
+ * publicly-readable content (resources, professionals) resides in top-level
+ * collections. This separation makes security rules clearer and queries for public
+ * data more efficient and secure.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper Functions
+    // --------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     * @param userId The user ID to check against the request's auth UID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks for ownership on an existing document.
+     * CRITICAL: Used for all update and delete operations to prevent modifying
+     * or deleting documents that do not exist.
+     * @param userId The user ID to check for ownership.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that the incoming UserProfile document has an 'id' field that
+     * matches the document's path ID. Enforces relational integrity on create.
+     * @param userId The user ID from the path.
+     */
+    function isCreatingOwnProfile(userId) {
+      return isOwner(userId) && request.resource.data.id == userId;
+    }
+    
+    /**
+     * Ensures key relational fields of a UserProfile are immutable on update.
+     */
+    function isUpdatingOwnProfile() {
+      // The user's unique ID should never change.
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that a new document in a user subcollection contains a
+     * 'userProfileId' that correctly points back to its parent user document.
+     * @param userId The user ID from the path.
+     */
+    function isCreatingOwnSubdocument(userId) {
+      return isOwner(userId) && request.resource.data.userProfileId == userId;
+    }
+    
+    /**
+     * Ensures the link back to the owner ('userProfileId') is immutable on update.
+     */
+    function isUpdatingOwnSubdocument() {
+      // The owning user ID should never change.
+      return request.resource.data.userProfileId == resource.data.userProfileId;
+    }
+
+
+    // User Data Rules
+    // --------------------------------------------------------------------
+
+    /**
+     * @description A user can create their own profile, and read/update it.
+     *   They cannot delete their own profile or access anyone else's.
+     * @path /users/{userProfileId}
+     * @allow (create) An authenticated user creating their own profile document
+     *   where the document ID matches their auth UID.
+     * @deny (get) An authenticated user trying to read another user's profile.
+     * @principle Enforces self-creation and ownership for a user's root document.
+     */
+    match /users/{userProfileId} {
+      allow get: if isOwner(userProfileId);
+      allow list: if false;
+      allow create: if isCreatingOwnProfile(userProfileId);
+      allow update: if isExistingOwner(userProfileId) && isUpdatingOwnProfile();
+      allow delete: if false;
+
+      /**
+       * @description A user can manage their own journal entries. No one else can
+       *   access them.
+       * @path /users/{userProfileId}/journalEntries/{journalEntryId}
+       * @allow (create, get, list, update, delete) An authenticated user performing any
+       *   operation on a journal entry under their own user path.
+       * @deny (list) An authenticated user trying to list journal entries for
+       *   another user.
+       * @principle Restricts access to a user's own private data tree.
+       */
+      match /journalEntries/{journalEntryId} {
+        allow get: if isOwner(userProfileId);
+        allow list: if isOwner(userProfileId);
+        allow create: if isCreatingOwnSubdocument(userProfileId);
+        allow update: if isExistingOwner(userProfileId) && isUpdatingOwnSubdocument();
+        allow delete: if isExistingOwner(userProfileId);
+      }
+
+      /**
+       * @description A user can manage their own mood records. No one else can
+       *   access them.
+       * @path /users/{userProfileId}/moodRecords/{moodRecordId}
+       * @allow (create, get, list, update, delete) An authenticated user performing any
+       *   operation on a mood record under their own user path.
+       * @deny (get) An authenticated user trying to read a single mood record for
+       *   another user.
+       * @principle Restricts access to a user's own private data tree.
+       */
+      match /moodRecords/{moodRecordId} {
+        allow get: if isOwner(userProfileId);
+        allow list: if isOwner(userProfileId);
+        allow create: if isCreatingOwnSubdocument(userProfileId);
+        allow update: if isExistingOwner(userProfileId) && isUpdatingOwnSubdocument();
+        allow delete: if isExistingOwner(userProfileId);
+      }
+
+      /**
+       * @description A user can manage their own appointments. No one else can
+       *   access them.
+       * @path /users/{userProfileId}/appointments/{appointmentId}
+       * @allow (create, get, list, update, delete) An authenticated user performing any
+       *   operation on an appointment under their own user path.
+       * @deny (update) An authenticated user trying to update an appointment for
+       *   another user.
+       * @principle Restricts access to a user's own private data tree.
+       */
+      match /appointments/{appointmentId} {
+        allow get: if isOwner(userProfileId);
+        allow list: if isOwner(userProfileId);
+        allow create: if isCreatingOwnSubdocument(userProfileId);
+        allow update: if isExistingOwner(userProfileId) && isUpdatingOwnSubdocument();
+        allow delete: if isExistingOwner(userProfileId);
+      }
+    }
+
+
+    // Public Data Rules
+    // --------------------------------------------------------------------
+
+    /**
+     * @description Mental health resources are public and readable by anyone,
+     *   but are not writable by clients to protect data integrity.
+     * @path /resources/{resourceId}
+     * @allow (get, list) Any user, authenticated or not, reading resource documents.
+     * @deny (create, update, delete) Any user trying to modify the resources.
+     * @principle Secures globally-shared data by making it read-only for clients.
+     *   Content should be managed via a trusted backend/admin process.
+     */
+    match /resources/{resourceId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Information about mental health professionals is public and
+     *   readable by anyone, but not writable by clients.
+     * @path /mentalHealthProfessionals/{mentalHealthProfessionalId}
+     * @allow (get, list) Any user, authenticated or not, reading professional profiles.
+     * @deny (create, update, delete) Any user trying to modify the professional list.
+     * @principle Secures globally-shared data by making it read-only for clients.
+     *   Content should be managed via a trusted backend/admin process.
+     */
+    match /mentalHealthProfessionals/{mentalHealthProfessionalId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
