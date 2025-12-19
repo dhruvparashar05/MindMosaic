@@ -9,7 +9,6 @@ import {
   UserCredential,
   signOut,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
  * Links email/password credentials to the currently signed-in anonymous user.
@@ -41,7 +40,7 @@ export function initiateAnonymousSignIn(authInstance: Auth) {
 /**
  * Initiates email/password sign-up.
  * If an anonymous user is currently signed in, it links the new credentials to that user.
- * Otherwise, it creates a new user.
+ * Otherwise, it creates a new user. This function no longer handles profile creation.
  */
 export async function initiateEmailSignUp(
   authInstance: Auth,
@@ -53,12 +52,7 @@ export async function initiateEmailSignUp(
     return linkEmailCredentialsToCurrentUser(authInstance, email, password);
   } else {
     // Otherwise, create a new user account.
-    const userCredential = await createUserWithEmailAndPassword(
-      authInstance,
-      email,
-      password
-    );
-    return userCredential;
+    return createUserWithEmailAndPassword(authInstance, email, password);
   }
 }
 

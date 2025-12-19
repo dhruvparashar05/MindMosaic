@@ -44,14 +44,17 @@ export default function SignupPage() {
       });
       return;
     }
+    // Step 1: Create or link the user credentials
     initiateEmailSignUp(auth, email, password)
       .then((userCredential) => {
-        // After sign up, update the profile with the full name
+        // Step 2: After successful sign-up/linking, update the user's profile display name.
+        // This is separate from the Firestore document.
         return updateProfile(userCredential.user, {
           displayName: fullName,
         });
       })
       .then(() => {
+        // Step 3: Redirect to the dashboard. The layout's effect will handle Firestore doc creation.
         router.push('/dashboard');
       })
       .catch((error) => {
