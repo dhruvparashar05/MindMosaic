@@ -9,7 +9,6 @@
 
 import {ai} from '@/ai/genkit';
 import {generate} from 'genkit/ai';
-import {geminiPro} from '@genkit-ai/google-genai';
 import {z} from 'zod';
 
 const MessageSchema = z.object({
@@ -43,16 +42,16 @@ const chatFlow = ai.flow(
     Start the first conversation by introducing yourself and asking how you can help.`;
 
     const response = await generate({
+      model: 'googleai/gemini-1.5-pro-latest',
       prompt: {
         system: systemPrompt,
         history: history,
       },
-      model: geminiPro,
       config: {
         temperature: 0.7,
       },
     });
 
-    return response.text();
+    return response.text;
   }
 );
