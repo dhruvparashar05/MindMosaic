@@ -64,8 +64,8 @@ export const resources = [
     title: 'Nutrition for Mental Well-being',
     description: 'Explore the connection between what you eat and how you feel.',
     image: getPlaceholderImage('resource-5'),
-    duration: '30 min',
-    url: '#',
+    duration: '17 min',
+    url: 'https://youtu.be/3dqXHHCc5lA?si=Wl9UTFziLNDjGEwB',
   },
   {
     id: '6',
