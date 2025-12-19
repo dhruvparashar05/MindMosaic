@@ -56,8 +56,8 @@ export const resources = [
     title: 'The Science of Better Sleep',
     description: 'Improve your sleep hygiene and unlock the restorative power of sleep.',
     image: getPlaceholderImage('resource-4'),
-    duration: '22 min',
-    url: '#',
+    duration: '4 min',
+    url: 'https://youtu.be/eM2VWspRpfk?si=A17hdGW2qGWbW0R5',
   },
   {
     id: '5',
