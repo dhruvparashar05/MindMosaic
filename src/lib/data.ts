@@ -48,8 +48,8 @@ export const resources = [
     title: 'Coping with Anxiety',
     description: 'Practical techniques to manage and reduce anxiety in your daily life.',
     image: getPlaceholderImage('resource-3'),
-    duration: '18 min',
-    url: '#',
+    duration: '15 min',
+    url: 'https://youtu.be/WWloIAQpMcQ?si=LSAXLjG4gwWtcuXz',
   },
   {
     id: '4',
