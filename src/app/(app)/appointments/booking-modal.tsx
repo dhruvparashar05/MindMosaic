@@ -77,7 +77,7 @@ export default function BookingModal({
             Schedule your session with {professional.name}.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-6 py-6">
           <div className="flex justify-center">
             <Calendar
               mode="single"
@@ -88,7 +88,7 @@ export default function BookingModal({
             />
           </div>
           <div>
-            <h4 className="font-medium mb-2">Available Time Slots</h4>
+            <h4 className="font-medium mb-4 text-center">Available Time Slots</h4>
             <div className="grid grid-cols-3 gap-2">
               {timeSlots.map((time) => (
                 <Button
@@ -109,7 +109,7 @@ export default function BookingModal({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleBooking}>Confirm Booking</Button>
+          <Button onClick={handleBooking} disabled={!date || !selectedTime}>Confirm Booking</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
