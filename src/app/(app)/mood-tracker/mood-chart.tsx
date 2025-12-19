@@ -114,7 +114,9 @@ export default function MoodChart() {
           />
           <Tooltip
             cursor={false}
-            content={<ChartTooltipContent indicator="dot" hideLabel />}
+            content={({ active, payload }) => (
+              <ChartTooltipContent active={active} payload={payload} indicator="dot" hideLabel />
+            )}
           />
           <Bar dataKey="mood" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
         </BarChart>
