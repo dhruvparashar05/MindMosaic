@@ -72,8 +72,8 @@ export const resources = [
     title: 'Building Emotional Resilience',
     description: 'Develop the skills to bounce back from adversity and challenges.',
     image: getPlaceholderImage('resource-6'),
-    duration: '20 min',
-    url: '#',
+    duration: '14 min',
+    url: 'https://youtu.be/3qELiw_1Ddg?si=0jmnrWflo_KAEtww',
   },
 ];
 
