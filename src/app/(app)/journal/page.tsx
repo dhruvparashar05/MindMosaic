@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { Header } from '@/components/header';
 import {
   Card,
@@ -14,9 +14,22 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { PlusCircle, Globe, Lock } from 'lucide-react';
+import { PlusCircle, Globe, Lock, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 // Define the type for a journal entry based on the Firestore structure
 interface JournalEntry {
@@ -33,6 +46,8 @@ interface JournalEntry {
 export default function JournalPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
+  const [entryToDelete, setEntryToDelete] = useState<JournalEntry | null>(null);
 
   const journalEntriesQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -52,6 +67,17 @@ export default function JournalPage() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const handleDelete = (entryId: string) => {
+    if (!user || !firestore) return;
+    const docRef = doc(firestore, `users/${user.uid}/journalEntries`, entryId);
+    deleteDocumentNonBlocking(docRef);
+    toast({
+      title: 'Entry Deleted',
+      description: 'Your journal entry has been successfully deleted.',
+    });
+    setEntryToDelete(null);
   };
 
   const isLoading = isUserLoading || isEntriesLoading;
@@ -123,10 +149,36 @@ export default function JournalPage() {
                       {entry.content}
                     </p>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex justify-between">
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/journal/${entry.id}`}>Read More</Link>
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setEntryToDelete(entry)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your journal entry.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel onClick={() => setEntryToDelete(null)}>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => entryToDelete && handleDelete(entryToDelete.id)}>
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </CardFooter>
                 </Card>
               ))
