@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "resource-1",
+      "description": "A video about mindfulness meditation.",
+      "imageUrl": "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtZWRpdGF0aW9uJTIwbmF0dXJlfGVufDB8fHx8MTc2NjE2NzI5NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "meditation nature"
+    },
+    {
+      "id": "resource-2",
+      "description": "A guide to cognitive behavioral therapy.",
+      "imageUrl": "https://images.unsplash.com/photo-1604881991664-593b31b88488?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx0aGVyYXB5JTIwc2Vzc2lvbnxlbnwwfHx8fDE3NjYxMTEyOTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "therapy session"
+    },
+    {
+      "id": "resource-3",
+      "description": "Understanding anxiety and how to cope.",
+      "imageUrl": "https://images.unsplash.com/photo-1592976370975-dcc9e764374f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2FsbSUyMHNlcmVuZXxlbnwwfHx8fDE3NjYxNjE1NjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calm serene"
+    },
+    {
+      "id": "resource-4",
+      "description": "Tips for better sleep and mental health.",
+      "imageUrl": "https://images.unsplash.com/photo-1516207391731-7ea07f1e29eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzbGVlcCUyMHBlYWNlZnVsfGVufDB8fHx8MTc2NjE2NzI5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sleep peaceful"
+    },
+    {
+      "id": "resource-5",
+      "description": "The importance of nutrition for your mind.",
+      "imageUrl": "https://images.unsplash.com/photo-1567769541495-338ee7203e3c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxoZWFsdGh5JTIwZm9vZHxlbnwwfHx8fDE3NjYwNzc5ODJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "healthy food"
+    },
+    {
+      "id": "resource-6",
+      "description": "Building resilience in difficult times.",
+      "imageUrl": "https://images.unsplash.com/photo-1763889242892-f0665072daf8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZXNpbGllbmNlJTIwbW91bnRhaW58ZW58MHx8fHwxNzY2MTYyNzIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "resilience mountain"
+    },
+    {
+      "id": "professional-1",
+      "description": "Dr. Emily Carter, a specialist in CBT.",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbnxlbnwwfHx8fDE3NjYwOTIyNjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional woman"
+    },
+    {
+      "id": "professional-2",
+      "description": "Dr. Ben Adams, an expert in mindfulness.",
+      "imageUrl": "https://images.unsplash.com/photo-1562788869-4ed32648eb72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcm9mZXNzaW9uYWwlMjBtYW58ZW58MHx8fHwxNzY2MTE3OTE2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional man"
+    },
+    {
+      "id": "professional-3",
+      "description": "Dr. Sarah Lee, a relationship counselor.",
+      "imageUrl": "https://images.unsplash.com/photo-1699647950516-f0aaf0126989?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx0aGVyYXBpc3QlMjBzbWlsaW5nfGVufDB8fHx8MTc2NjE1MDE3MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "therapist smiling"
+    }
+  ]
 }
