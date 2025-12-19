@@ -1,3 +1,5 @@
+'use client';
+
 import { Header } from '@/components/header';
 import {
   Card,
@@ -16,8 +18,26 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import MoodChart from '@/app/(app)/mood-tracker/mood-chart';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+
+interface JournalEntry {
+  id: string;
+}
 
 export default function DashboardPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const journalEntriesQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return collection(firestore, `users/${user.uid}/journalEntries`);
+  }, [user, firestore]);
+
+  const { data: journalEntries, isLoading: isEntriesLoading } = useCollection<JournalEntry>(journalEntriesQuery);
+
+  const entryCount = journalEntries?.length ?? 0;
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header pageTitle="Dashboard" />
@@ -50,7 +70,9 @@ export default function DashboardPage() {
               <Notebook className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3 Entries</div>
+              <div className="text-2xl font-bold">
+                {isEntriesLoading ? '...' : `${entryCount} ${entryCount === 1 ? 'Entry' : 'Entries'}`}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Reflect on your thoughts and feelings
               </p>
