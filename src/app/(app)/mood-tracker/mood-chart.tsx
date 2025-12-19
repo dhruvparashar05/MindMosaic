@@ -77,6 +77,14 @@ export default function MoodChart() {
   if (isLoading) {
     return <Skeleton className="h-[350px] w-full" />;
   }
+  
+  if (!chartData || chartData.length === 0) {
+    return (
+      <div className="flex h-[350px] w-full items-center justify-center rounded-lg border border-dashed">
+        <p className="text-muted-foreground">Log your first mood to see your history here.</p>
+      </div>
+    )
+  }
 
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
