@@ -124,8 +124,8 @@ export default function JournalPage() {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" size="sm">
-                      Read More
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/journal/${entry.id}`}>Read More</Link>
                     </Button>
                   </CardFooter>
                 </Card>
