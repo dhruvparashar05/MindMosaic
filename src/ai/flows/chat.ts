@@ -52,6 +52,6 @@ const chatFlow = ai.flow(
       },
     });
 
-    return response.text;
+    return response.text();
   }
 );
