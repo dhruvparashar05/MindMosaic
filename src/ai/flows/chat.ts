@@ -8,6 +8,8 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {generate} from 'genkit/ai';
+import {geminiPro} from '@genkit-ai/google-genai';
 import {z} from 'zod';
 
 const MessageSchema = z.object({
@@ -27,7 +29,7 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
   return chatFlow(input);
 }
 
-const chatFlow = ai.defineFlow(
+const chatFlow = ai.flow(
   {
     name: 'chatFlow',
     inputSchema: ChatInputSchema,
@@ -40,17 +42,17 @@ const chatFlow = ai.defineFlow(
 
     Start the first conversation by introducing yourself and asking how you can help.`;
 
-    const {output} = await ai.generate({
+    const response = await generate({
       prompt: {
         system: systemPrompt,
         history: history,
       },
-      model: ai.model,
+      model: geminiPro,
       config: {
         temperature: 0.7,
       },
     });
 
-    return output!;
+    return response.text();
   }
 );
