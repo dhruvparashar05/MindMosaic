@@ -32,6 +32,7 @@ export const resources = [
       'Learn the basics of mindfulness meditation and start your journey towards a calmer mind.',
     image: getPlaceholderImage('resource-1'),
     duration: '15 min',
+    url: 'https://youtu.be/aIIEI33EUqI?si=TtAsXkPNrEvMvY2m',
   },
   {
     id: '2',
@@ -40,6 +41,7 @@ export const resources = [
       'Discover how Cognitive Behavioral Therapy can help you reframe negative thoughts.',
     image: getPlaceholderImage('resource-2'),
     duration: '25 min',
+    url: '#',
   },
   {
     id: '3',
@@ -47,6 +49,7 @@ export const resources = [
     description: 'Practical techniques to manage and reduce anxiety in your daily life.',
     image: getPlaceholderImage('resource-3'),
     duration: '18 min',
+    url: '#',
   },
   {
     id: '4',
@@ -54,6 +57,7 @@ export const resources = [
     description: 'Improve your sleep hygiene and unlock the restorative power of sleep.',
     image: getPlaceholderImage('resource-4'),
     duration: '22 min',
+    url: '#',
   },
   {
     id: '5',
@@ -61,6 +65,7 @@ export const resources = [
     description: 'Explore the connection between what you eat and how you feel.',
     image: getPlaceholderImage('resource-5'),
     duration: '30 min',
+    url: '#',
   },
   {
     id: '6',
@@ -68,6 +73,7 @@ export const resources = [
     description: 'Develop the skills to bounce back from adversity and challenges.',
     image: getPlaceholderImage('resource-6'),
     duration: '20 min',
+    url: '#',
   },
 ];
 

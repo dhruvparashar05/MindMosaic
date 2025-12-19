@@ -10,6 +10,7 @@ import { resources } from '@/lib/data';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PlayCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ResourcesPage() {
   return (
@@ -42,9 +43,11 @@ export default function ResourcesPage() {
                 <span className="text-sm font-medium text-muted-foreground">
                   {resource.duration}
                 </span>
-                <Button>
-                  <PlayCircle className="mr-2 h-4 w-4" />
-                  Watch Now
+                <Button asChild>
+                  <Link href={resource.url} target="_blank">
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    Watch Now
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
