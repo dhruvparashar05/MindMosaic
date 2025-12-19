@@ -9,7 +9,6 @@ export const ai = genkit({
     }),
     genkitx(),
   ],
-  model: 'googleai/gemini-2.5-flash',
-  logLevel: 'debug',
+  model: 'googleai/gemini-1.5-flash-latest',
   enableTracing: true,
 });
