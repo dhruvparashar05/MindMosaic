@@ -54,7 +54,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
         <SidebarMenu className="flex-1 overflow-y-auto">
           {navLinks.map((link) => (
             <SidebarMenuItem key={link.href}>
-              <Link href={link.href} legacyBehavior passHref>
+              <Link href={link.href}>
                 <SidebarMenuButton
                   isActive={pathname.startsWith(link.href)}
                   tooltip={link.label}
@@ -76,7 +76,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                 <p className="font-medium truncate">User Name</p>
                 <p className="text-xs text-muted-foreground truncate">user@email.com</p>
             </div>
-             <Link href="/login" passHref legacyBehavior>
+             <Link href="/login">
                 <Button variant="ghost" size="icon" className="transition-all duration-200 group-data-[collapsible=icon]:hidden">
                   <LogOut />
                 </Button>
