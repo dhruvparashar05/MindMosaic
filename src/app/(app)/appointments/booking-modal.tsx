@@ -42,7 +42,7 @@ export default function BookingModal({
   isOpen,
   onClose,
 }: BookingModalProps) {
-  const [step, setStep] = useState<'date' | 'time'>('date');
+  const [step, setStep] = useState<'date' | 'time' | 'success'>('date');
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const { toast } = useToast();
@@ -86,7 +86,7 @@ export default function BookingModal({
         )
     });
     
-    handleClose();
+    setStep('success');
   }
 
   if (!professional) return null;
@@ -133,6 +133,16 @@ export default function BookingModal({
                     </div>
                 </ScrollArea>
             )}
+
+            {step === 'success' && (
+                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                    <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                    <h3 className="text-xl font-semibold">Booking Confirmed!</h3>
+                    <p className="text-muted-foreground mt-2">
+                        Your appointment with {professional.name} is set for {date?.toLocaleDateString()} at {selectedTime}.
+                    </p>
+                </div>
+            )}
         </div>
 
         <DialogFooter className="pt-6 flex-row justify-between sm:justify-between">
@@ -152,6 +162,17 @@ export default function BookingModal({
                  <Button onClick={handleBooking} disabled={!date || !selectedTime}>
                     Confirm Booking
                  </Button>
+            )}
+
+            {step === 'success' && (
+                <div className='w-full flex justify-end gap-2'>
+                    <Button variant="outline" onClick={handleClose}>
+                        Done
+                    </Button>
+                    <Button onClick={resetState}>
+                        Book Another Appointment
+                    </Button>
+                </div>
             )}
         </DialogFooter>
       </DialogContent>
