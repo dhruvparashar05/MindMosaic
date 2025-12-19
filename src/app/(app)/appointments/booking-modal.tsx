@@ -14,7 +14,7 @@ import {
 import type { professionals as ProfessionalsType } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 type Professional = (typeof ProfessionalsType)[0];
@@ -42,9 +42,29 @@ export default function BookingModal({
   isOpen,
   onClose,
 }: BookingModalProps) {
+  const [step, setStep] = useState<'date' | 'time'>('date');
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate) {
+      setStep('time');
+    }
+  };
+  
+  const resetState = () => {
+    setStep('date');
+    setDate(new Date());
+    setSelectedTime(null);
+  }
+
+  const handleClose = () => {
+    onClose();
+    // Delay reset to allow closing animation to finish
+    setTimeout(resetState, 300);
+  }
 
   const handleBooking = () => {
     if (!date || !selectedTime || !professional) {
@@ -66,14 +86,13 @@ export default function BookingModal({
         )
     });
     
-    onClose();
-    setSelectedTime(null);
+    handleClose();
   }
 
   if (!professional) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Book Appointment</DialogTitle>
@@ -81,41 +100,59 @@ export default function BookingModal({
             Schedule your session with {professional.name}.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-1 pr-6 -mr-6">
-          <div className="grid gap-6 py-1">
-            <div className="flex justify-center">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border"
-                disabled={(d) => d < new Date(new Date().setDate(new Date().getDate() - 1))}
-              />
-            </div>
-            <div>
-              <h4 className="font-medium mb-4 text-center">Available Time Slots</h4>
-              <div className="grid grid-cols-3 gap-2">
-                {timeSlots.map((time) => (
-                  <Button
-                    key={time}
-                    variant="outline"
-                    className={cn(
-                      selectedTime === time && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
-                    )}
-                    onClick={() => setSelectedTime(time)}
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </ScrollArea>
-        <DialogFooter className="pt-6">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleBooking} disabled={!date || !selectedTime}>Confirm Booking</Button>
+        
+        <div className="flex-1 min-h-0">
+            {step === 'date' && (
+                <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={handleDateSelect}
+                    className="p-0"
+                    disabled={(d) => d < new Date(new Date().setDate(new Date().getDate() - 1))}
+                />
+            )}
+
+            {step === 'time' && (
+                 <ScrollArea className="h-full pr-6 -mr-6">
+                    <h4 className="font-medium mb-4 text-center">
+                        Available Time Slots for {date?.toLocaleDateString()}
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2">
+                        {timeSlots.map((time) => (
+                        <Button
+                            key={time}
+                            variant="outline"
+                            className={cn(
+                            selectedTime === time && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
+                            )}
+                            onClick={() => setSelectedTime(time)}
+                        >
+                            {time}
+                        </Button>
+                        ))}
+                    </div>
+                </ScrollArea>
+            )}
+        </div>
+
+        <DialogFooter className="pt-6 flex-row justify-between sm:justify-between">
+            {step === 'time' && (
+                 <Button variant="ghost" onClick={() => setStep('date')}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                 </Button>
+            )}
+            {step === 'date' && (
+                <Button variant="outline" onClick={handleClose}>
+                    Cancel
+                </Button>
+            )}
+
+            {step === 'time' && (
+                 <Button onClick={handleBooking} disabled={!date || !selectedTime}>
+                    Confirm Booking
+                 </Button>
+            )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
