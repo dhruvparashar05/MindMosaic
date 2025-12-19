@@ -16,6 +16,9 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useFirebase } from '@/firebase';
+import { collection, Timestamp } from 'firebase/firestore';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 type Professional = (typeof ProfessionalsType)[0];
 
@@ -46,6 +49,7 @@ export default function BookingModal({
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user, firestore } = useFirebase();
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
@@ -67,7 +71,7 @@ export default function BookingModal({
   }
 
   const handleBooking = () => {
-    if (!date || !selectedTime || !professional) {
+    if (!date || !selectedTime || !professional || !user || !firestore) {
         toast({
             title: "Incomplete Selection",
             description: "Please select a date and time slot.",
@@ -75,16 +79,31 @@ export default function BookingModal({
         })
         return;
     }
+    
+    // Create combined dateTime
+    const [time, modifier] = selectedTime.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
 
-    toast({
-        title: "Booking Confirmed!",
-        description: `Your appointment with ${professional.name} is set for ${date.toLocaleDateString()} at ${selectedTime}.`,
-        action: (
-            <div className="p-2 bg-accent text-accent-foreground rounded-full">
-                <CheckCircle className="h-6 w-6" />
-            </div>
-        )
-    });
+    if (modifier === 'PM' && hours < 12) {
+        hours += 12;
+    }
+    if (modifier === 'AM' && hours === 12) { // Handle 12 AM (midnight)
+        hours = 0;
+    }
+
+    const bookingDateTime = new Date(date);
+    bookingDateTime.setHours(hours, minutes, 0, 0);
+
+    const newAppointment = {
+        userProfileId: user.uid,
+        professionalId: professional.id,
+        professionalName: professional.name, // Denormalized for easier display
+        dateTime: Timestamp.fromDate(bookingDateTime),
+        status: 'Scheduled',
+    };
+
+    const collectionRef = collection(firestore, `users/${user.uid}/appointments`);
+    addDocumentNonBlocking(collectionRef, newAppointment);
     
     setStep('success');
   }

@@ -13,16 +13,24 @@ import {
   ArrowUpRight,
   BookOpen,
   Bot,
+  Calendar,
   Notebook,
   Smile,
 } from 'lucide-react';
 import Link from 'next/link';
 import MoodChart from '@/app/(app)/mood-tracker/mood-chart';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, query, where, Timestamp } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface JournalEntry {
   id: string;
+}
+
+interface Appointment {
+    id: string;
+    professionalName: string;
+    dateTime: Timestamp;
 }
 
 export default function DashboardPage() {
@@ -36,7 +44,29 @@ export default function DashboardPage() {
 
   const { data: journalEntries, isLoading: isEntriesLoading } = useCollection<JournalEntry>(journalEntriesQuery);
 
+  const appointmentsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+        collection(firestore, `users/${user.uid}/appointments`),
+        where('dateTime', '>=', Timestamp.now())
+    );
+  }, [user, firestore]);
+
+  const { data: appointments, isLoading: isAppointmentsLoading } = useCollection<Appointment>(appointmentsQuery);
+
   const entryCount = journalEntries?.length ?? 0;
+
+  const formatDate = (timestamp: Timestamp) => {
+    if (!timestamp) return 'No date';
+    return new Date(timestamp.seconds * 1000).toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -134,6 +164,40 @@ export default function DashboardPage() {
               <MoodChart />
             </CardContent>
           </Card>
+           <Card>
+                <CardHeader>
+                    <CardTitle>Upcoming Appointments</CardTitle>
+                    <CardDescription>
+                        Your scheduled sessions with our professionals.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                    {isAppointmentsLoading ? (
+                        <>
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                        </>
+                    ) : appointments && appointments.length > 0 ? (
+                        appointments
+                            .sort((a, b) => a.dateTime.seconds - b.dateTime.seconds)
+                            .map(apt => (
+                                <div key={apt.id} className="flex items-center gap-4">
+                                    <div className="bg-primary rounded-full p-2">
+                                        <Calendar className="h-5 w-5 text-primary-foreground" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold">{apt.professionalName}</p>
+                                        <p className="text-sm text-muted-foreground">{formatDate(apt.dateTime)}</p>
+                                    </div>
+                                </div>
+                            ))
+                    ) : (
+                        <div className="text-sm text-muted-foreground text-center py-4">
+                            You have no upcoming appointments.
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
       </main>
     </div>
