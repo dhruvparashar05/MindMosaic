@@ -4,48 +4,66 @@ import { useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send } from 'lucide-react';
+import { Send, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { chat } from '@/ai/flows/chat';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'bot';
+  id: string;
+  role: 'user' | 'model';
+  content: string;
 }
 
 export default function ChatbotUI() {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: 1,
-      text: "Hello! I'm your AI assistant from Mind Mosaic. How can I support you today?",
-      sender: 'bot',
+      id: '1',
+      content: "Hello! I'm your AI assistant from Mind Mosaic. How can I support you today?",
+      role: 'model',
     },
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputValue.trim() === '') return;
 
     const userMessage: Message = {
-      id: messages.length + 1,
-      text: inputValue,
-      sender: 'user',
+      id: crypto.randomUUID(),
+      content: inputValue,
+      role: 'user',
     };
-
-    setMessages((prev) => [...prev, userMessage]);
+    
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue('');
+    setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: messages.length + 2,
-        text: "Thank you for sharing. It's brave to talk about your feelings. Could you tell me a little more about what's been on your mind?",
-        sender: 'bot',
+    try {
+      const botResponse = await chat({
+        history: newMessages.map(({ id, ...rest }) => rest), // Don't send id to the flow
+      });
+
+      const botMessage: Message = {
+        id: crypto.randomUUID(),
+        content: botResponse,
+        role: 'model',
       };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1500);
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+       const errorMessage: Message = {
+        id: crypto.randomUUID(),
+        content: "Sorry, I'm having a little trouble right now. Please try again in a moment.",
+        role: 'model',
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      console.error('Error getting bot response:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -56,7 +74,7 @@ export default function ChatbotUI() {
           viewport.scrollTop = viewport.scrollHeight;
         }
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   return (
     <div className="flex flex-col h-full">
@@ -67,25 +85,25 @@ export default function ChatbotUI() {
               key={message.id}
               className={cn(
                 'flex items-start gap-3',
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
+                message.role === 'user' ? 'justify-end' : 'justify-start'
               )}
             >
-              {message.sender === 'bot' && (
+              {message.role === 'model' && (
                 <Avatar>
-                  <AvatarFallback>AI</AvatarFallback>
+                  <AvatarFallback><Bot/></AvatarFallback>
                 </Avatar>
               )}
               <div
                 className={cn(
                   'max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-4 py-3',
-                  message.sender === 'user'
+                  message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted'
                 )}
               >
-                <p className="text-sm">{message.text}</p>
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               </div>
-              {message.sender === 'user' && (
+              {message.role === 'user' && (
                  <Avatar>
                    <AvatarImage src="https://picsum.photos/seed/user/100/100" />
                   <AvatarFallback>U</AvatarFallback>
@@ -93,6 +111,16 @@ export default function ChatbotUI() {
               )}
             </div>
           ))}
+          {isLoading && (
+            <div className="flex items-start gap-3 justify-start">
+               <Avatar>
+                  <AvatarFallback><Bot/></AvatarFallback>
+                </Avatar>
+              <div className="bg-muted rounded-lg px-4 py-3">
+                <Skeleton className="h-4 w-10 bg-muted-foreground/30" />
+              </div>
+            </div>
+          )}
         </div>
       </ScrollArea>
       <div className="p-4 border-t bg-card">
@@ -101,15 +129,16 @@ export default function ChatbotUI() {
             placeholder="Type your message..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
             className="pr-12"
+            disabled={isLoading}
           />
           <Button
             size="icon"
             variant="ghost"
             className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
             onClick={handleSendMessage}
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isLoading}
           >
             <Send className="h-5 w-5" />
           </Button>
