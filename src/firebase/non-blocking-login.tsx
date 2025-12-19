@@ -1,29 +1,65 @@
 'use client';
 import {
-  Auth, // Import Auth type for type hinting
+  Auth,
   signInAnonymously,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  // Assume getAuth and app are initialized elsewhere
+  linkWithCredential,
+  EmailAuthProvider,
+  UserCredential,
 } from 'firebase/auth';
 
+/**
+ * Links email/password credentials to the currently signed-in anonymous user.
+ * This should be the preferred method for "signing up" when an anonymous user exists.
+ */
+async function linkEmailCredentialsToCurrentUser(
+  authInstance: Auth,
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  const currentUser = authInstance.currentUser;
+  if (!currentUser) {
+    throw new Error('No user is currently signed in to link credentials.');
+  }
+
+  const credential = EmailAuthProvider.credential(email, password);
+
+  // CRITICAL: Return the promise from linkWithCredential.
+  return linkWithCredential(currentUser, credential);
+}
+
 /** Initiate anonymous sign-in (non-blocking). */
-export function initiateAnonymousSignIn(authInstance: Auth): void {
+export function initiateAnonymousSignIn(authInstance: Auth) {
   // CRITICAL: Call signInAnonymously directly. Do NOT use 'await signInAnonymously(...)'.
   signInAnonymously(authInstance);
   // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
 
-/** Initiate email/password sign-up (non-blocking). */
-export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Call createUserWithEmailAndPassword directly. Do NOT use 'await createUserWithEmailAndPassword(...)'.
-  createUserWithEmailAndPassword(authInstance, email, password);
-  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
+/**
+ * Initiates email/password sign-up.
+ * If an anonymous user is currently signed in, it links the new credentials to that user.
+ * Otherwise, it creates a new user.
+ */
+export function initiateEmailSignUp(
+  authInstance: Auth,
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  // If a user is already signed in (likely anonymous), link the new credentials.
+  if (authInstance.currentUser && authInstance.currentUser.isAnonymous) {
+    return linkEmailCredentialsToCurrentUser(authInstance, email, password);
+  } else {
+    // Otherwise, create a new user account.
+    return createUserWithEmailAndPassword(authInstance, email, password);
+  }
 }
 
-/** Initiate email/password sign-in (non-blocking). */
-export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Call signInWithEmailAndPassword directly. Do NOT use 'await signInWithEmailAndPassword(...)'.
-  signInWithEmailAndPassword(authInstance, email, password);
-  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
+/** Initiate email/password sign-in. Returns a promise for handling success/error. */
+export function initiateEmailSignIn(
+  authInstance: Auth,
+  email: string,
+  password: string
+): Promise<UserCredential> {
+  return signInWithEmailAndPassword(authInstance, email, password);
 }
