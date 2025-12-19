@@ -40,8 +40,8 @@ export const resources = [
     description:
       'Discover how Cognitive Behavioral Therapy can help you reframe negative thoughts.',
     image: getPlaceholderImage('resource-2'),
-    duration: '25 min',
-    url: '#',
+    duration: '5 min',
+    url: 'https://youtu.be/ZdyOwZ4_RnI?si=wMPrb4vJj9VXhCY-',
   },
   {
     id: '3',
