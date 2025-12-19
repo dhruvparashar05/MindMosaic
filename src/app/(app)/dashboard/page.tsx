@@ -16,12 +16,27 @@ import {
   Calendar,
   Notebook,
   Smile,
+  Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
 import MoodChart from '@/app/(app)/mood-tracker/mood-chart';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, Timestamp } from 'firebase/firestore';
+import { collection, query, where, Timestamp, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useState } from 'react';
 
 interface JournalEntry {
   id: string;
@@ -36,6 +51,8 @@ interface Appointment {
 export default function DashboardPage() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
+  const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null);
 
   const journalEntriesQuery = useMemoFirebase(() => {
     if (!user) return null;
@@ -67,6 +84,18 @@ export default function DashboardPage() {
       hour12: true,
     });
   };
+
+  const handleDelete = (appointmentId: string) => {
+    if (!user || !firestore) return;
+    const docRef = doc(firestore, `users/${user.uid}/appointments`, appointmentId);
+    deleteDocumentNonBlocking(docRef);
+    toast({
+      title: 'Appointment Canceled',
+      description: 'The appointment has been successfully removed.',
+    });
+    setAppointmentToDelete(null);
+  };
+
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -189,6 +218,31 @@ export default function DashboardPage() {
                                         <p className="font-semibold">{apt.professionalName}</p>
                                         <p className="text-sm text-muted-foreground">{formatDate(apt.dateTime)}</p>
                                     </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                             <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setAppointmentToDelete(apt)}>
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                                <span className="sr-only">Cancel appointment</span>
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This will permanently cancel your appointment. This action cannot be undone.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel onClick={() => setAppointmentToDelete(null)}>Back</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    className="bg-destructive hover:bg-destructive/90"
+                                                    onClick={() => appointmentToDelete && handleDelete(appointmentToDelete.id)}
+                                                >
+                                                    Cancel Appointment
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             ))
                     ) : (
