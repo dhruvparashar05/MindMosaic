@@ -62,7 +62,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
           const newUserProfile = {
             id: user.uid,
             email: user.email || '', // Email might be null for anonymous users
-            username: user.email || 'Anonymous',
+            username: user.displayName || user.email || 'Anonymous',
             dateJoined: serverTimestamp(),
           };
           // Use setDoc with the user's UID to create the document.
@@ -117,7 +117,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                 {user
                   ? user.isAnonymous
                     ? 'Anonymous User'
-                    : user.email
+                    : user.displayName || user.email
                   : 'Not logged in'}
               </p>
               <p className="text-xs text-muted-foreground truncate">

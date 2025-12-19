@@ -17,8 +17,10 @@ import { Heart } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { useToast } from '@/hooks/use-toast';
+import { updateProfile } from 'firebase/auth';
 
 export default function SignupPage() {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = useAuth();
@@ -34,7 +36,21 @@ export default function SignupPage() {
       });
       return;
     }
+    if (!fullName) {
+      toast({
+        title: 'Sign-up Failed',
+        description: 'Please enter your full name.',
+        variant: 'destructive',
+      });
+      return;
+    }
     initiateEmailSignUp(auth, email, password)
+      .then((userCredential) => {
+        // After sign up, update the profile with the full name
+        return updateProfile(userCredential.user, {
+          displayName: fullName,
+        });
+      })
       .then(() => {
         router.push('/dashboard');
       })
@@ -65,7 +81,13 @@ export default function SignupPage() {
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="full-name">Full Name</Label>
-              <Input id="full-name" placeholder="John Doe" required />
+              <Input
+                id="full-name"
+                placeholder="John Doe"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
