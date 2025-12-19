@@ -25,6 +25,9 @@ import {
 import { usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useUser, useAuth } from '@/firebase';
+import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
+import { useEffect } from 'react';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -37,6 +40,14 @@ const navLinks = [
 
 export default function AppLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+
+  useEffect(() => {
+    if (!isUserLoading && !user && auth) {
+      initiateAnonymousSignIn(auth);
+    }
+  }, [isUserLoading, user, auth]);
 
   return (
     <SidebarProvider>
@@ -54,7 +65,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
         <SidebarMenu className="flex-1 overflow-y-auto">
           {navLinks.map((link) => (
             <SidebarMenuItem key={link.href}>
-              <Link href={link.href}>
+              <Link href={link.href} passHref>
                 <SidebarMenuButton
                   isActive={pathname.startsWith(link.href)}
                   tooltip={link.label}
@@ -73,8 +84,8 @@ export default function AppLayout({ children }: PropsWithChildren) {
                <AvatarFallback>U</AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden transition-all duration-200 group-data-[collapsible=icon]:hidden">
-                <p className="font-medium truncate">User Name</p>
-                <p className="text-xs text-muted-foreground truncate">user@email.com</p>
+                <p className="font-medium truncate">{user ? user.isAnonymous ? 'Anonymous User' : user.email : 'Not logged in'}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.uid}</p>
             </div>
              <Link href="/login">
                 <Button variant="ghost" size="icon" className="transition-all duration-200 group-data-[collapsible=icon]:hidden">
