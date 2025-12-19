@@ -43,7 +43,7 @@ const chatFlow = ai.defineFlow(
     const {output} = await ai.generate({
       prompt: {
         system: systemPrompt,
-        history,
+        history: history,
       },
       model: ai.model,
       config: {
