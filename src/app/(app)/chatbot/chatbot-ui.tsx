@@ -44,8 +44,11 @@ export default function ChatbotUI() {
 
     try {
       const botResponse = await chat({
-        history: newMessages.map(({ id, ...rest }) => rest), // Don't send id to the flow
-      });
+        history: newMessages.map((msg) => ({
+          role: msg.role,
+          parts: [{ text: msg.content }],
+        })),
+      });      
 
       const botMessage: Message = {
         id: crypto.randomUUID(),
