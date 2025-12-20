@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Bot } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { chat } from '@/ai/flows/chat';
@@ -105,8 +105,7 @@ export default function ChatbotUI() {
               </div>
               {message.role === 'user' && (
                  <Avatar>
-                   <AvatarImage src="https://picsum.photos/seed/user/100/100" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
               )}
             </div>

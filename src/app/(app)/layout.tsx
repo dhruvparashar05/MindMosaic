@@ -20,9 +20,10 @@ import {
   Notebook,
   BookOpen,
   Smile,
+  User,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useUser, useAuth, useFirestore } from '@/firebase';
 import {
@@ -109,8 +110,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
         <SidebarFooter className="p-4">
           <div className="flex items-center gap-3 transition-all duration-200 group-data-[collapsible=icon]:justify-center">
             <Avatar className="size-9">
-              <AvatarImage src="https://picsum.photos/seed/user/100/100" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarFallback><User /></AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden transition-all duration-200 group-data-[collapsible=icon]:hidden">
               <p className="font-medium truncate">
