@@ -5,9 +5,9 @@ import { Header } from '@/components/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { professionals } from '@/lib/data';
-import Image from 'next/image';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import BookingModal from './booking-modal';
+import { User } from 'lucide-react';
 
 type Professional = (typeof professionals)[0];
 
@@ -34,14 +34,7 @@ export default function AppointmentsPage() {
             <Card key={prof.id} className="flex flex-col text-center">
               <CardHeader className="items-center">
                 <Avatar className="h-24 w-24">
-                  {prof.avatar && (
-                    <AvatarImage
-                      src={prof.avatar.imageUrl}
-                      alt={prof.name}
-                      data-ai-hint={prof.avatar.imageHint}
-                    />
-                  )}
-                  <AvatarFallback>{prof.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
               </CardHeader>
               <CardContent className="flex-1">
