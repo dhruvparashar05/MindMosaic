@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { chat } from '@/ai/flows/chat';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Message {
@@ -43,12 +42,20 @@ export default function ChatbotUI() {
     setIsLoading(true);
 
     try {
-      const botResponse = await chat({
-        history: newMessages.map((msg) => ({
-          role: msg.role,
-          parts: [{ text: msg.content }],
-        })),
-      });      
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: inputValue, history: newMessages }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from the server.');
+      }
+      
+      const data = await response.json();
+      const botResponse = data.reply;
 
       const botMessage: Message = {
         id: crypto.randomUUID(),
