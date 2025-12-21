@@ -1,31 +1,33 @@
 'use server';
 
-import { z } from "zod";
-import { ai } from "../genkit";
+import { ai } from '@/ai/genkit';
+import { z } from 'zod';
+import { streamFlow } from 'genkit';
+
+const MessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  parts: z.array(z.object({ text: z.string() })),
+});
 
 export const chat = ai.defineFlow(
   {
-    name: "chat",
+    name: 'chat',
     inputSchema: z.object({
-      history: z.array(
-        z.object({
-          role: z.enum(["user", "model"]),
-          parts: z.array(
-            z.object({
-              text: z.string(),
-            })
-          ),
-        })
-      ),
+      history: z.array(MessageSchema),
     }),
     outputSchema: z.string(),
   },
   async (input) => {
-    const response = await ai.generate({
+    const { stream, response } = ai.generateStream({
       model: ai.model,
       messages: input.history,
     });
 
-    return response.text;
+    let finalResponse = '';
+    for await (const chunk of stream) {
+      finalResponse += chunk.text;
+    }
+    await response;
+    return finalResponse;
   }
 );

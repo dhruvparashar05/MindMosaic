@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { chat } from "@/ai/flows/chat";
-import { z } from "zod";
+import { NextRequest } from 'next/server';
+import { z } from 'zod';
+import { ai } from '@/ai/genkit';
+import { StreamingTextResponse, streamToResponse } from 'ai';
 
 const MessageSchema = z.object({
   id: z.string(),
-  role: z.enum(["user", "model"]),
+  role: z.enum(['user', 'model']),
   content: z.string(),
 });
 
@@ -13,42 +14,51 @@ const RequestSchema = z.object({
   history: z.array(MessageSchema).optional(),
 });
 
-
 export async function POST(req: NextRequest) {
   try {
-    const { message, history } = await RequestSchema.parseAsync(await req.json());
+    const { message, history } = await RequestSchema.parseAsync(
+      await req.json()
+    );
 
     if (!message) {
-      return NextResponse.json(
-        { error: "Message is required" },
+      return new Response(JSON.stringify({ error: 'Message is required' }), {
+        status: 400,
+      });
+    }
+
+    const flowHistory =
+      history?.map((h) => ({
+        role: h.role,
+        parts: [{ text: h.content }],
+      })) ?? [];
+
+    flowHistory.push({ role: 'user', parts: [{ text: message }] });
+
+    const { stream } = ai.generateStream({
+      model: ai.model,
+      messages: flowHistory,
+    });
+
+    const aiStream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) {
+          controller.enqueue(chunk.text);
+        }
+        controller.close();
+      },
+    });
+
+    return new StreamingTextResponse(aiStream);
+  } catch (error: any) {
+    console.error('Chat API error:', error);
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body', details: error.issues }),
         { status: 400 }
       );
     }
-    
-    // The chat flow expects a `history` object with a specific structure.
-    // We need to transform the incoming history to match what the flow expects.
-    const flowHistory = history ? history.map(h => ({
-      role: h.role,
-      parts: [{ text: h.content }],
-    })) : [];
-
-    // The current user message is not in the history yet, so we add it.
-    flowHistory.push({ role: "user", parts: [{ text: message }] });
-
-    const response = await chat({ history: flowHistory });
-
-    return NextResponse.json({
-      reply: response,
+    return new Response(JSON.stringify({ error: 'Failed to generate response' }), {
+      status: 500,
     });
-  } catch (error: any) {
-    console.error("Chat API error:", error);
-    // If it's a validation error
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid request body", details: error.issues }, { status: 400 });
-    }
-    return NextResponse.json(
-      { error: "Failed to generate response" },
-      { status: 500 }
-    );
   }
 }

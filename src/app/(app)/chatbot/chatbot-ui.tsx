@@ -1,88 +1,35 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useChat } from 'ai/react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface Message {
-  id: string;
-  role: 'user' | 'model';
-  content: string;
-}
-
 export default function ChatbotUI() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "Hello! I'm your AI assistant from Mind Mosaic. How can I support you today?",
-      role: 'model',
-    },
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    initialMessages: [
+      {
+        id: '1',
+        content: "Hello! I'm your AI assistant from Mind Mosaic. How can I support you today?",
+        role: 'assistant',
+      },
+    ],
+    api: '/api/chat',
+  });
+
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  const handleSendMessage = async () => {
-    if (inputValue.trim() === '') return;
-
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      content: inputValue,
-      role: 'user',
-    };
-    
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInputValue('');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: inputValue, history: newMessages }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response from the server.');
-      }
-      
-      const data = await response.json();
-      const botResponse = data.reply;
-
-      const botMessage: Message = {
-        id: crypto.randomUUID(),
-        content: botResponse,
-        role: 'model',
-      };
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-       const errorMessage: Message = {
-        id: crypto.randomUUID(),
-        content: "Sorry, I'm having a little trouble right now. Please try again in a moment.",
-        role: 'model',
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-      console.error('Error getting bot response:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-        // A bit of a hack to scroll to the bottom. The viewport is a child div.
-        const viewport = scrollAreaRef.current.querySelector('div');
-        if (viewport) {
-          viewport.scrollTop = viewport.scrollHeight;
-        }
+      const viewport = scrollAreaRef.current.querySelector('div');
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
   }, [messages, isLoading]);
 
@@ -98,7 +45,7 @@ export default function ChatbotUI() {
                 message.role === 'user' ? 'justify-end' : 'justify-start'
               )}
             >
-              {message.role === 'model' && (
+              {message.role !== 'user' && (
                 <Avatar>
                   <AvatarFallback><Bot/></AvatarFallback>
                 </Avatar>
@@ -120,7 +67,7 @@ export default function ChatbotUI() {
               )}
             </div>
           ))}
-          {isLoading && (
+          {isLoading && messages[messages.length-1]?.role === 'user' && (
             <div className="flex items-start gap-3 justify-start">
                <Avatar>
                   <AvatarFallback><Bot/></AvatarFallback>
@@ -132,27 +79,28 @@ export default function ChatbotUI() {
           )}
         </div>
       </ScrollArea>
-      <div className="p-4 border-t bg-card">
-        <div className="relative">
-          <Input
-            placeholder="Type your message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-            className="pr-12"
-            disabled={isLoading}
-          />
-          <Button
-            size="icon"
-            variant="ghost"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isLoading}
-          >
-            <Send className="h-5 w-5" />
-          </Button>
+      <form onSubmit={handleSubmit}>
+        <div className="p-4 border-t bg-card">
+          <div className="relative">
+            <Input
+              placeholder="Type your message..."
+              value={input}
+              onChange={handleInputChange}
+              className="pr-12"
+              disabled={isLoading}
+            />
+            <Button
+              size="icon"
+              variant="ghost"
+              type="submit"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+              disabled={!input.trim() || isLoading}
+            >
+              {isLoading ? <Loader className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
