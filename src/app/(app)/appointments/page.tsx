@@ -8,6 +8,7 @@ import { professionals } from '@/lib/data';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import BookingModal from './booking-modal';
 import { User } from 'lucide-react';
+import Image from 'next/image';
 
 type Professional = (typeof professionals)[0];
 
@@ -34,7 +35,21 @@ export default function AppointmentsPage() {
             <Card key={prof.id} className="flex flex-col text-center">
               <CardHeader className="items-center">
                 <Avatar className="h-24 w-24">
-                  <AvatarFallback><User /></AvatarFallback>
+                  {prof.avatar?.imageUrl ? (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={prof.avatar.imageUrl}
+                        alt={prof.name}
+                        fill
+                        className="object-cover"
+                        data-ai-hint={prof.avatar.imageHint}
+                      />
+                    </div>
+                  ) : (
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  )}
                 </Avatar>
               </CardHeader>
               <CardContent className="flex-1">
@@ -50,7 +65,7 @@ export default function AppointmentsPage() {
           ))}
         </div>
       </main>
-      <BookingModal 
+      <BookingModal
         professional={selectedProfessional}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
