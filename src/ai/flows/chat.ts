@@ -2,7 +2,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { streamFlow } from 'genkit';
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -18,16 +17,11 @@ export const chat = ai.defineFlow(
     outputSchema: z.string(),
   },
   async (input) => {
-    const { stream, response } = ai.generateStream({
+    const response = await ai.generate({
       model: ai.model,
       messages: input.history,
     });
 
-    let finalResponse = '';
-    for await (const chunk of stream) {
-      finalResponse += chunk.text;
-    }
-    await response;
-    return finalResponse;
+    return response.text;
   }
 );

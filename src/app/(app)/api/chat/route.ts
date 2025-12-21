@@ -1,7 +1,6 @@
+import { chat } from '@/ai/flows/chat';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { ai } from '@/ai/genkit';
-import { StreamingTextResponse, streamToResponse } from 'ai';
 
 const MessageSchema = z.object({
   id: z.string(),
@@ -34,21 +33,13 @@ export async function POST(req: NextRequest) {
 
     flowHistory.push({ role: 'user', parts: [{ text: message }] });
 
-    const { stream } = ai.generateStream({
-      model: ai.model,
-      messages: flowHistory,
-    });
+    const response = await chat({ history: flowHistory });
 
-    const aiStream = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of stream) {
-          controller.enqueue(chunk.text);
-        }
-        controller.close();
+    return new Response(response, {
+      headers: {
+        'Content-Type': 'text/plain',
       },
     });
-
-    return new StreamingTextResponse(aiStream);
   } catch (error: any) {
     console.error('Chat API error:', error);
     if (error instanceof z.ZodError) {
