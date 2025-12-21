@@ -1,8 +1,9 @@
-import { defineFlow } from "genkit";
+'use server';
+
 import { z } from "zod";
 import { ai } from "../genkit";
 
-export const chat = defineFlow(
+export const chat = ai.defineFlow(
   {
     name: "chat",
     inputSchema: z.object({
@@ -22,9 +23,9 @@ export const chat = defineFlow(
   async (input) => {
     const response = await ai.generate({
       model: ai.model,
-      messages: input.history, // ✅ NOW GUARANTEED SHAPE
+      messages: input.history,
     });
 
-    return response.text();
+    return response.text;
   }
 );
