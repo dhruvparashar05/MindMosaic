@@ -44,3 +44,7 @@ next-env.d.ts
 firebase-debug.log
 firestore-debug.log
 node_modules
+
+# firebase local state (CRITICAL)
+.firebase/
+.firebaserc
