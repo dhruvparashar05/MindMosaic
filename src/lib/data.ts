@@ -14,7 +14,7 @@ export const professionals = [
     id: '2',
     name: 'Dr. Ben Adams',
     specialty: 'Mindfulness & Stress Reduction',
-    avatar: getPlaceholderImage('professional-2'),
+    avatar: undefined,
   },
   {
     id: '3',
