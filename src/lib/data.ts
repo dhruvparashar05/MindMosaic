@@ -12,7 +12,7 @@ export const professionals = [
   },
   {
     id: '2',
-    name: 'Dr. Ema Adams',
+    name: 'Dr. Ben Adams',
     specialty: 'Mindfulness & Stress Reduction',
     avatar: getPlaceholderImage('professional-2'),
   },
