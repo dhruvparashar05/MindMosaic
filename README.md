@@ -52,7 +52,6 @@ studio/
 
 ## 🧪 Run Locally
 
-### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/dhruvparashar05/studio.git
 cd studio
