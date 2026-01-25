@@ -1,4 +1,4 @@
-🧠 Mind Mosaic
+*🧠 Mind Mosaic*
 
 Mind Mosaic is a modern web application designed to transform scattered ideas, notes, and inputs into structured, meaningful insights. It combines a clean Next.js frontend with Firebase-powered backend services to deliver a fast, scalable, and intuitive user experience.
 
