@@ -1,45 +1,70 @@
-*🧠 Mind Mosaic*
+# 🧠 **MIND MOSAIC**
 
-Mind Mosaic is a modern web application designed to transform scattered ideas, notes, and inputs into structured, meaningful insights. It combines a clean Next.js frontend with Firebase-powered backend services to deliver a fast, scalable, and intuitive user experience.
+> **Mind Mosaic** is a modern web application that transforms scattered ideas, notes, and inputs into structured, meaningful insights using a powerful Next.js frontend and Firebase backend.
 
-🚀 Live Demo
+---
 
-🔗 Deployed on Vercel:
-https://your-vercel-url.vercel.app
+## 🚀 Live Demo
+🔗 https://your-vercel-url.vercel.app  
+_(Replace with your actual Vercel deployment link)_
 
-(Replace this with your actual Vercel link)
+---
 
-🛠 Tech Stack
-Frontend
+## 🛠 Tech Stack
 
-Next.js – React framework for fast, SEO-friendly apps
+### Frontend
+- **Next.js**
+- **React**
+- **Tailwind CSS** (if used)
 
-React – Component-based UI
+### Backend & Services
+- **Firebase Authentication**
+- **Firebase Firestore**
+- **Firebase Cloud Functions**
 
-Tailwind CSS (if used) – Modern utility-first styling
+### Deployment
+- **Vercel** – Frontend hosting  
+- **Firebase** – Backend services  
 
-Backend & Services
+---
 
-Firebase Authentication – Secure user login
+## ✨ Features
+- 🔐 Secure authentication with Firebase  
+- ⚡ Fast, responsive UI  
+- ☁️ Serverless backend using Firebase Functions  
+- 🔄 Real-time data handling  
+- 🚀 Automatic deployment via GitHub → Vercel  
 
-Firebase Firestore – Real-time database
+---
 
-Firebase Functions – Serverless backend logic
+## 📂 Project Structure
+studio/
+│── app/ or src/ # Next.js application
+│── functions/ # Firebase Cloud Functions
+│── public/ # Static assets
+│── firebase.json
+│── package.json
+│── .gitignore
+│── README.md
 
-Deployment
 
-Vercel – Frontend deployment
+---
 
-Firebase – Backend & services
+## 🧪 Run Locally
 
-✨ Features
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/dhruvparashar05/studio.git
+cd studio
+npm install
 
-🔐 User authentication with Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-⚡ Fast and responsive UI
+npm run dev
 
-☁️ Serverless backend with Firebase Functions
-
-🔄 Real-time data handling
-
-🌍 Deployed with CI/CD (GitHub → Vercel)
+http://localhost:3000
