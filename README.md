@@ -5,8 +5,7 @@
 ---
 
 ## 🚀 Live Demo
-🔗 https://your-vercel-url.vercel.app  
-_(Replace with your actual Vercel deployment link)_
+🔗 https://mind-mosaic-alpha.vercel.app/dashboard
 
 ---
 
@@ -15,7 +14,7 @@ _(Replace with your actual Vercel deployment link)_
 ### Frontend
 - **Next.js**
 - **React**
-- **Tailwind CSS** (if used)
+- **Tailwind CSS**
 
 ### Backend & Services
 - **Firebase Authentication**
