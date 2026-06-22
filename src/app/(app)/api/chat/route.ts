@@ -3,35 +3,41 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 const MessageSchema = z.object({
-  id: z.string(),
-  role: z.enum(['user', 'model']),
+  id: z.string().optional(),
+  role: z.enum(['user', 'assistant', 'system']),
   content: z.string(),
 });
 
 const RequestSchema = z.object({
-  message: z.string(),
-  history: z.array(MessageSchema).optional(),
+  messages: z.array(MessageSchema),
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, history } = await RequestSchema.parseAsync(
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey || geminiKey.trim() === '') {
+      return new Response("AI Assistant is currently unavailable.", {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      });
+    }
+
+    const { messages } = await RequestSchema.parseAsync(
       await req.json()
     );
 
-    if (!message) {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
+    if (!messages || messages.length === 0) {
+      return new Response(JSON.stringify({ error: 'Messages are required' }), {
         status: 400,
       });
     }
 
-    const flowHistory =
-      history?.map((h) => ({
-        role: h.role,
-        parts: [{ text: h.content }],
-      })) ?? [];
-
-    flowHistory.push({ role: 'user', parts: [{ text: message }] });
+    const flowHistory = messages.map((m) => ({
+      role: m.role === 'user' ? ('user' as const) : ('model' as const),
+      parts: [{ text: m.content }],
+    }));
 
     const response = await chat({ history: flowHistory });
 

@@ -33,7 +33,19 @@ async function linkEmailCredentialsToCurrentUser(
 /** Initiate anonymous sign-in (non-blocking). */
 export function initiateAnonymousSignIn(authInstance: Auth) {
   // CRITICAL: Call signInAnonymously directly. Do NOT use 'await signInAnonymously(...)'.
-  signInAnonymously(authInstance);
+  signInAnonymously(authInstance).catch((error) => {
+    console.error('Anonymous sign-in error:', error);
+    if (error && error.code === 'auth/admin-restricted-operation') {
+      console.warn(
+        "Mind Mosaic Warning: Anonymous authentication is disabled in your Firebase project console.\n" +
+        "To enable it:\n" +
+        "1. Open the Firebase Console: https://console.firebase.google.com/\n" +
+        "2. Go to Build > Authentication > Sign-in method.\n" +
+        "3. Enable 'Anonymous' under Additional Providers.\n\n" +
+        "Alternatively, navigate to /login or /signup to sign in/sign up with an Email/Password account."
+      );
+    }
+  });
   // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
 
